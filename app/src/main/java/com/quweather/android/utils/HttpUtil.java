@@ -2,7 +2,7 @@ package com.quweather.android.utils;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
+
 
 public class HttpUtil  {
     //定义一个与服务器进行数据交互的类从服务器中获取数据

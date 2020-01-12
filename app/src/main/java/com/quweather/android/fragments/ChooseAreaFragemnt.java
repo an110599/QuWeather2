@@ -1,6 +1,8 @@
 package com.quweather.android.fragments;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,8 @@ import com.quweather.android.DataBean.City;
 import com.quweather.android.DataBean.County;
 import com.quweather.android.DataBean.Province;
 import com.quweather.android.R;
+import com.quweather.android.WeatherActivity;
+import com.quweather.android.gson.Weather;
 import com.quweather.android.utils.HttpUtil;
 import com.quweather.android.utils.Utility;
 
@@ -77,6 +81,14 @@ public class ChooseAreaFragemnt extends Fragment {
                         selectedCity = mCities.get(position);
                         queryCounties();
                     }
+                else if (currentLevel == LEVEL_COUNTY){
+                    String weatherId = mCounties.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(), WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
+
+                }
             }
         });
          //设置单击事件，一个按钮控制返回如果 为县级就返回至上一级市 ，如果判断为市就返回至上一级省
@@ -90,6 +102,7 @@ public class ChooseAreaFragemnt extends Fragment {
                       queryProvinces();  //省
                   }
 
+
               }
           });
           queryProvinces();  //一开始加载视图就要执行这条省的数据语句（也就是初始界面）
@@ -97,6 +110,7 @@ public class ChooseAreaFragemnt extends Fragment {
         //查询全国所有的省，有限从数据库中查询，如果没有查询到在到数据库上查询到在传给数据库 在调用此方法
     private void queryProvinces() {
         mTitleText.setText("中国");
+        mTitleText.setTextColor(Color.parseColor("#D81B60"));
         mBackButton.setVisibility(View.GONE); //因为为首页所以不显示返回按钮
         mProvinces = DataSupport.findAll(Province.class); //这里直接加载所有省数据
         //进行判空处理
@@ -161,16 +175,7 @@ public class ChooseAreaFragemnt extends Fragment {
     private void queryFromServer(String address, final String type) {
         showProgreeDialog();
         HttpUtil.sendOkHttpRequest(address, new Callback() {
-            //回调产生的两个方法一个是请求失败，一个是回应数据
-            @Override
-            public void onFailure(Call call, IOException e) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        closeProgreeDialog();
-                        Toast.makeText(getContext(),"加载失败！！！",Toast.LENGTH_SHORT).show();}
-                });
-            }
+
             //这是对网址请求后返回的数据回应 其中 response 就是待解析的 对象
             @Override
             public void onResponse(Call call, Response response) throws IOException {
@@ -208,7 +213,19 @@ public class ChooseAreaFragemnt extends Fragment {
 
 
             }
+            //回调产生的两个方法一个是请求失败，一个是回应数据
+            @Override
+            public void onFailure(Call call, IOException e) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgreeDialog();
+                        Toast.makeText(getContext(),"加载失败！！！",Toast.LENGTH_SHORT).show();}
+                });
+            }
         });
+
+
     }
             //进度框的关闭
     private void closeProgreeDialog() {
